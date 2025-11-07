@@ -36,8 +36,10 @@ mongoose.connect(mongoURI, {
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: ['chrome-extension://*', 'http://localhost:*', 'http://127.0.0.1:*'],
-    credentials: true
+    origin: "*", //['chrome-extension://*', 'http://localhost:*', 'http://127.0.0.1:*'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -45,10 +47,19 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const extractedDataRoutes = require('./routes/extractedData');
 const authRoutes = require('./routes/auth');
+const leadRoutes = require('./routes/leads');
+const jobRoutes = require('./routes/jobs');
+const statusRoutes = require('./routes/status');
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Routes
 app.use('/api/extracted-data', extractedDataRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/leads', leadRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api', statusRoutes);  
 
 // Health check with database status
 app.get('/health', (req, res) => {
