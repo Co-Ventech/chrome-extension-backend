@@ -34,8 +34,17 @@ mongoose.connect(mongoURI, {
 
 // Middleware
 app.use(helmet());
+// Configure CORS so the server echoes the requesting origin. Using a
+// wildcard (`"*"`) together with `credentials: true` is not allowed by
+// browsers, and will cause preflight requests to fail (no Access-Control-Allow-Origin
+// header will be returned). For content scripts running inside a page (e.g.
+// LinkedIn) the request origin will be that page, so we allow the origin
+// dynamically.
 app.use(cors({
-    origin: "*",
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl)
+        callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
