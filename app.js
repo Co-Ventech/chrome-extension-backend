@@ -40,8 +40,14 @@ app.use(helmet());
 // header will be returned). For content scripts running inside a page (e.g.
 // LinkedIn) the request origin will be that page, so we allow the origin
 // dynamically.
-app.use(cors());
-
+// app.use(cors());
+var corsOptions = {
+  origin: '*',      // allowed origin(s)
+  methods: ['GET', 'POST', 'PUT'],   // allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // allowed headers
+  credentials: true                  // allow credentials
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
