@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: chrome-extension-backend
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+      - key: JWT_SECRET
+      - key: NODE_ENV
+      - key: PORT
+
+# Notes:
+# - Do NOT commit secrets into this file. Set values in the Render dashboard or via the
+#   Render CLI after creating the service.
+# - This file is a minimal descriptor to allow creating the service via the Render UI
+#   or the Render Git-based deployments. Remove or adapt fields (plan/branch) as needed.
