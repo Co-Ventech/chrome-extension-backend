@@ -40,15 +40,8 @@ app.use(helmet());
 // header will be returned). For content scripts running inside a page (e.g.
 // LinkedIn) the request origin will be that page, so we allow the origin
 // dynamically.
-app.use(cors({
-    origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl)
-        callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(cors());
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -57,6 +50,8 @@ app.use(express.urlencoded({ extended: true }));
 // so we set headers explicitly and short-circuit OPTIONS requests.
 app.use((req, res, next) => {
     const origin = req.headers.origin || '*';
+    // Log origin and method for debugging CORS issues in production
+    console.log('🔁 CORS middleware - method:', req.method, 'origin:', req.headers.origin);
     // If credentials are needed, reflect the origin instead of using '*'
     if (origin && origin !== 'null') {
         res.setHeader('Access-Control-Allow-Origin', origin);
