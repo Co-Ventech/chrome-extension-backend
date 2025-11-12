@@ -52,6 +52,28 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Ensure CORS headers are always present (explicit guard for preflight requests)
+// Some serverless platforms or proxies can interfere with automatic CORS handling,
+// so we set headers explicitly and short-circuit OPTIONS requests.
+app.use((req, res, next) => {
+    const origin = req.headers.origin || '*';
+    // If credentials are needed, reflect the origin instead of using '*'
+    if (origin && origin !== 'null') {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+
+    if (req.method === 'OPTIONS') {
+        // Preflight request, end here
+        return res.status(204).end();
+    }
+    next();
+});
+
 // Import routes
 const extractedDataRoutes = require('./routes/extractedData');
 const authRoutes = require('./routes/auth');
