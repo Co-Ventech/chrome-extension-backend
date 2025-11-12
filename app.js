@@ -41,39 +41,41 @@ app.use(helmet());
 // LinkedIn) the request origin will be that page, so we allow the origin
 // dynamically.
 // app.use(cors());
-var corsOptions = {
-  origin: '*',      // allowed origin(s)
-  methods: ['GET', 'POST', 'PUT'],   // allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // allowed headers
-  credentials: true                  // allow credentials
+const corsOptions = {
+  origin: true,               // reflect request origin, allows any origin
+  credentials: true,          // allow cookies/auth if needed
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With']
 };
+
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Ensure CORS headers are always present (explicit guard for preflight requests)
 // Some serverless platforms or proxies can interfere with automatic CORS handling,
 // so we set headers explicitly and short-circuit OPTIONS requests.
-app.use((req, res, next) => {
-    const origin = req.headers.origin || '*';
-    // Log origin and method for debugging CORS issues in production
-    console.log('🔁 CORS middleware - method:', req.method, 'origin:', req.headers.origin);
-    // If credentials are needed, reflect the origin instead of using '*'
-    if (origin && origin !== 'null') {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    } else {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+// app.use((req, res, next) => {
+//     const origin = req.headers.origin || '*';
+//     // Log origin and method for debugging CORS issues in production
+//     console.log('🔁 CORS middleware - method:', req.method, 'origin:', req.headers.origin);
+//     // If credentials are needed, reflect the origin instead of using '*'
+//     if (origin && origin !== 'null') {
+//         res.setHeader('Access-Control-Allow-Origin', origin);
+//     } else {
+//         res.setHeader('Access-Control-Allow-Origin', '*');
+//     }
+//     res.setHeader('Access-Control-Allow-Credentials', 'true');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
-    if (req.method === 'OPTIONS') {
-        // Preflight request, end here
-        return res.status(204).end();
-    }
-    next();
-});
+//     if (req.method === 'OPTIONS') {
+//         // Preflight request, end here
+//         return res.status(204).end();
+//     }
+//     next();
+// });
 
 // Import routes
 const extractedDataRoutes = require('./routes/extractedData');
